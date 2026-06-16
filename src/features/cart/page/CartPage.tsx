@@ -4,8 +4,7 @@ import Layout from '@/shared/Layout'
 import { useCartStore } from '@/store/useCartStore'
 import { useCreateOrder } from '@/features/orders/hooks/useOrders'
 import { useAuthStore } from '@/store/useAuthStore'
-import { useDirections } from '@/features/directions/hooks/useDirections'
-import { useCreateDirection } from '@/features/directions/hooks/useDirections'
+import { useDirections, useCreateDirection, useUpdateDirection } from '@/features/directions/hooks/useDirections'
 import { useFormasPago } from '@/features/formas-pago/hooks/useFormasPago'
 import CartItemCard from '@/features/cart/components/CartItemCard'
 import CartSkeleton from '@/features/cart/components/CartSkeleton'
@@ -44,6 +43,7 @@ export default function CartPage() {
 
   const mutation = useCreateOrder()
   const createDirectionMutation = useCreateDirection()
+  const updateDirectionMutation = useUpdateDirection()
   const addToast = useToastStore((s) => s.addToast)
   const startPayment = usePaymentStore((s) => s.startPayment)
 
@@ -209,6 +209,8 @@ export default function CartPage() {
                       onDirectionChange={setSelectedDirection}
                       onSave={handleSaveDirection}
                       isSaving={createDirectionMutation.isPending}
+                      onUpdate={(id, data) => updateDirectionMutation.mutate({ id, data })}
+                      isUpdating={updateDirectionMutation.isPending}
                     />
 
                     {createDirectionMutation.error && (
