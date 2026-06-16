@@ -28,10 +28,22 @@ export default function OrderInfo({ order }: OrderInfoProps) {
         <div className='space-y-4'>
           <h3 className='text-sm font-bold uppercase tracking-[0.3em] text-[#ffb3ae]'>Detalles del pedido</h3>
           <div className='space-y-2 text-sm text-[#d1c3c1]/70'>
+            <p>
+              <span className='text-[#ab8986]'>Método de envío:</span>{' '}
+              {order.metodo_envio === 'RETIRO' ? 'Retiro en el local' : 'A domicilio'}
+            </p>
+            {order.metodo_envio === 'DOMICILIO' && order.direccion ? (
+              <div>
+                <p><span className='text-[#ab8986]'>Dirección de entrega:</span> {order.direccion.linea1}</p>
+                {order.direccion.linea2 && <p className='text-[#d1c3c1]/70'>{order.direccion.linea2}</p>}
+                <p className='text-[#d1c3c1]/70'>
+                  {order.direccion.ciudad}{order.direccion.provincia ? `, ${order.direccion.provincia}` : ''}
+                </p>
+              </div>
+            ) : order.metodo_envio === 'RETIRO' ? (
+              <p className='text-[#ffb3ae] font-bold'>Retiro en el local</p>
+            ) : null}
             <p><span className='text-[#ab8986]'>Forma de pago:</span> {order.forma_pago_codigo}</p>
-            {order.direccion_id && (
-              <p><span className='text-[#ab8986]'>Dirección ID:</span> #{order.direccion_id}</p>
-            )}
             {order.notas && (
               <p><span className='text-[#ab8986]'>Notas:</span> {order.notas}</p>
             )}
