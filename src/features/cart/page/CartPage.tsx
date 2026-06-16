@@ -12,6 +12,7 @@ import CartSkeleton from '@/features/cart/components/CartSkeleton'
 import OrderSummary from '@/features/cart/components/OrderSummary'
 import DirectionForm from '@/features/cart/components/DirectionForm'
 import type { DirectionFormData } from '@/features/cart/components/DirectionForm'
+import MetodoEnvioSelector from '@/features/cart/components/MetodoEnvioSelector'
 import { useToastStore } from '@/store/useToastStore'
 import { usePaymentStore } from '@/store/usePaymentStore'
 import { extractApiError } from '@/lib/errorParser'
@@ -33,6 +34,7 @@ export default function CartPage() {
 
   const [selectedDirection, setSelectedDirection] = useState<number>(0)
   const [selectedFormaPago, setSelectedFormaPago] = useState<string>('')
+  const [metodoEnvio, setMetodoEnvio] = useState<'DOMICILIO' | 'RETIRO'>('DOMICILIO')
 
   useEffect(() => {
     if (directions && directions.length > 0 && selectedDirection === 0) {
@@ -45,13 +47,15 @@ export default function CartPage() {
   const addToast = useToastStore((s) => s.addToast)
   const startPayment = usePaymentStore((s) => s.startPayment)
 
+  const requiereEnvio = metodoEnvio === 'DOMICILIO'
   const subtotal = items.reduce((acc, item) => acc + item.precio_base * item.quantity, 0)
-  const total = subtotal + COSTO_ENVIO
+  const total = subtotal + (requiereEnvio ? COSTO_ENVIO : 0)
 
   const formaPago = selectedFormaPago || formasPago?.[0]?.codigo || 'EFECTIVO'
 
   const payload = {
-    direccion_id: selectedDirection,
+    metodo_envio: metodoEnvio,
+    direccion_id: requiereEnvio ? selectedDirection : null,
     forma_pago_codigo: formaPago,
     notas: null,
     items: items.map((item) => ({
@@ -114,7 +118,7 @@ export default function CartPage() {
       navigate('/login', { state: { from: { pathname: '/cart' } } })
       return
     }
-    if (!selectedDirection) {
+    if (requiereEnvio && !selectedDirection) {
       addToast('Agregá una dirección de entrega primero', 'error')
       return
     }
@@ -170,10 +174,15 @@ export default function CartPage() {
               <div className='sticky top-28 space-y-8 border border-[#5b403e]/20 bg-[#1a1a1a] p-8'>
                 <h2 className='border-b border-[#5b403e]/20 pb-4 text-3xl font-black uppercase text-white'>Resumen</h2>
 
+                <MetodoEnvioSelector
+                  value={metodoEnvio}
+                  onChange={setMetodoEnvio}
+                />
+
                 <OrderSummary
                   itemCount={items.length}
                   subtotal={subtotal}
-                  costoEnvio={COSTO_ENVIO}
+                  costoEnvio={requiereEnvio ? COSTO_ENVIO : 0}
                   total={total}
                 />
 
@@ -192,18 +201,22 @@ export default function CartPage() {
                   </select>
                 </div>
 
-                <DirectionForm
-                  directions={directions}
-                  selectedDirection={selectedDirection}
-                  onDirectionChange={setSelectedDirection}
-                  onSave={handleSaveDirection}
-                  isSaving={createDirectionMutation.isPending}
-                />
+                {requiereEnvio && (
+                  <>
+                    <DirectionForm
+                      directions={directions}
+                      selectedDirection={selectedDirection}
+                      onDirectionChange={setSelectedDirection}
+                      onSave={handleSaveDirection}
+                      isSaving={createDirectionMutation.isPending}
+                    />
 
-                {createDirectionMutation.error && (
-                  <div className='rounded border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-400'>
-                    {createDirectionMutation.error ?? 'Error al guardar dirección'}
-                  </div>
+                    {createDirectionMutation.error && (
+                      <div className='rounded border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-400'>
+                        {createDirectionMutation.error ?? 'Error al guardar dirección'}
+                      </div>
+                    )}
+                  </>
                 )}
 
                 <div className='space-y-4'>

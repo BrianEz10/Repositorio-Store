@@ -1,3 +1,5 @@
+import type { Direction } from '@/features/directions/types/direction'
+
 export interface PedidoDetalle {
   pedido_id: number
 
@@ -32,11 +34,15 @@ export interface Pedido {
 
   usuario_id: number
 
-  direccion_id: number
+  direccion_id: number | null
+
+  direccion?: Direction | null
 
   estado_codigo: string
 
   forma_pago_codigo: string
+
+  metodo_envio: string
 
   subtotal: number
 
@@ -73,7 +79,9 @@ export const STATUS_COLORS: Record<string, string> = {
 
 export interface CreatePedidoPayload {
 
-  direccion_id: number 
+  metodo_envio: string
+
+  direccion_id: number | null
 
   forma_pago_codigo: string
 
