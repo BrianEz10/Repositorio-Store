@@ -160,12 +160,17 @@ export default function DetalleProductoPage() {
                   {product.ingredientes.map((ing) => (
                     <label
                       key={ing.id}
-                      className='flex items-center gap-2 border border-[#5b403e]/30 bg-[#222222] px-4 py-2 text-sm text-[#e4beba] cursor-pointer hover:border-[#ffb3ae]/50 transition'
+                      className={`flex items-center gap-2 border px-4 py-2 text-sm transition
+                        ${!ing.es_removible
+                          ? 'opacity-40 cursor-not-allowed border-[#5b403e]/30 bg-[#222222] text-[#e4beba]'
+                          : 'border-[#5b403e]/30 bg-[#222222] text-[#e4beba] hover:border-[#ffb3ae]/50 cursor-pointer'}`}
                     >
                       <input
                         type='checkbox'
                         checked={removedIngredientes.includes(ing.id)}
+                        disabled={!ing.es_removible}
                         onChange={(e) => {
+                          if (!ing.es_removible) return
                           setRemovedIngredientes(
                             e.target.checked
                               ? [...removedIngredientes, ing.id]
@@ -175,6 +180,9 @@ export default function DetalleProductoPage() {
                         className='accent-[#ffb3ae]'
                       />
                       <span>{ing.nombre}</span>
+                      {!ing.es_removible && (
+                        <span className='text-[10px] uppercase tracking-wider text-gray-500 ml-auto'>(fijo)</span>
+                      )}
                       {ing.es_alergeno && (
                         <span className='text-[10px] uppercase tracking-wider text-yellow-400'>(alergeno)</span>
                       )}
