@@ -25,7 +25,7 @@ export interface Product {
 
   categorias?: CategoriaOut[]
 
-  ingredientes?: IngredienteOut[]
+  ingredientes?: IngredienteEnProductoOut[]
 }
 
 export interface IngredienteOut {
@@ -34,4 +34,8 @@ export interface IngredienteOut {
   descripcion: string | null
   es_alergeno: boolean
   stock_cantidad: number
+}
+
+export interface IngredienteEnProductoOut extends IngredienteOut {
+  es_removible: boolean
 }
