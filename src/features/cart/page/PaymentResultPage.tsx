@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useParams, useSearchParams, Link } from 'react-router-dom'
 import api from '@/lib/axios'
 import Layout from '@/shared/Layout'
@@ -12,6 +12,7 @@ export default function PaymentResultPage() {
   const [searchParams] = useSearchParams()
   const [estado, setEstado] = useState<ResultStatus>('confirmando')
   const [orderTotal, setOrderTotal] = useState<number | null>(null)
+  const hasConfirmed = useRef(false)
   const resetPayment = usePaymentStore((s) => s.resetPayment)
   const approvePayment = usePaymentStore((s) => s.approvePayment)
   const rejectPayment = usePaymentStore((s) => s.rejectPayment)
@@ -36,6 +37,9 @@ export default function PaymentResultPage() {
       return
     }
 
+    if (hasConfirmed.current) return
+    hasConfirmed.current = true
+
     async function confirmar() {
       try {
         const res = await api.post('/pagos/confirm', {
@@ -56,7 +60,7 @@ export default function PaymentResultPage() {
     }
 
     confirmar()
-  }, [pedidoId, paymentId, isFailure, approvePayment, rejectPayment])
+  }, [pedidoId, paymentId, isFailure])
 
   if (estado === 'confirmando') {
     return (
