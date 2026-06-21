@@ -7,7 +7,6 @@ export const useOrders = () => {
   return useQuery({
     queryKey: queryKeys.orders,
     queryFn: getOrders,
-    refetchInterval: 30_000,
   })
 }
 
