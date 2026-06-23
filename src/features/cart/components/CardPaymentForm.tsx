@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import api from '@/lib/axios'
 import { extractApiError } from '@/lib/errorParser'
 import { isMpConfigured } from '@/lib/mp'
+import { useCreatePayment } from '@/features/cart/hooks/useCreatePayment'
 
 interface CardPaymentFormProps {
   pedidoId: number
@@ -9,8 +9,8 @@ interface CardPaymentFormProps {
 }
 
 export default function CardPaymentForm({ pedidoId }: CardPaymentFormProps) {
-  const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const paymentMutation = useCreatePayment()
 
   const mpConfigured = isMpConfigured()
 
@@ -20,15 +20,12 @@ export default function CardPaymentForm({ pedidoId }: CardPaymentFormProps) {
       return
     }
 
-    setLoading(true)
     setError(null)
 
     try {
-      const res = await api.post('/pagos/crear', {
-        pedido_id: pedidoId,
-      })
+      const data = await paymentMutation.mutateAsync(pedidoId)
 
-      const initPoint = res.data?.init_point
+      const initPoint = data?.init_point
 
       if (initPoint) {
         window.location.href = initPoint
@@ -37,8 +34,6 @@ export default function CardPaymentForm({ pedidoId }: CardPaymentFormProps) {
       }
     } catch (err: unknown) {
       setError(extractApiError(err, 'Error al conectar con MercadoPago'))
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -52,10 +47,10 @@ export default function CardPaymentForm({ pedidoId }: CardPaymentFormProps) {
 
       <button
         onClick={handleRedirect}
-        disabled={loading}
+        disabled={paymentMutation.isPending}
         className='w-full border border-[#ffb3ae] bg-[#ffb3ae] py-4 text-sm font-bold uppercase tracking-[0.2em] text-black transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer'
       >
-        {loading ? (
+        {paymentMutation.isPending ? (
           <span className='flex items-center justify-center gap-2'>
             <svg className='h-4 w-4 animate-spin' viewBox='0 0 24 24'>
               <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='4' fill='none' />

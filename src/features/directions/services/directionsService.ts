@@ -14,16 +14,6 @@ export const getDirections =
 
     return data
   }
-
-export const getDirectionById =
-  async (id: number): Promise<Direction> => {
-
-    const { data } =
-      await api.get(`/mis-direcciones/${id}`)
-
-    return data
-  }
-
 export const createDirection =
   async (
     payload: CreateDirectionDto
@@ -53,16 +43,6 @@ export const updateDirection =
     return data
   }
 
-export const setPrincipalDirection =
-  async (id: number): Promise<Direction> => {
-
-    const { data } =
-      await api.patch(`/mis-direcciones/${id}/principal`)
-
-    return data
-  }
-
-export const deleteDirection =
-  async (id: number): Promise<void> => {
-    await api.delete(`/mis-direcciones/${id}`)
-  }
+export const deleteDirection = async (id: number): Promise<void> => {
+  await api.delete(`/mis-direcciones/${id}`)
+}
